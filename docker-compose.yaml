@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3.12-management # Specifies the RabbitMQ image with management UI
+    hostname: rabbitmq # Sets the hostname within the Docker network
+    ports:
+      - "5672:5672" # AMQP port for client connections
+      - "15672:15672" # Management UI port
+    environment:
+      RABBITMQ_DEFAULT_USER: user # Default username
+      RABBITMQ_DEFAULT_PASS: password # Default password
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq # Persistent volume for data
+    networks:
+      - app-network # Connects to a custom network
+
+volumes:
+  rabbitmq_data: # Defines the named volume
+
+networks:
+  app-network: # Defines the custom network
+    driver: bridge
