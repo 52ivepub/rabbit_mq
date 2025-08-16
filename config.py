@@ -6,6 +6,8 @@ RMQ_PORT = 5672
 
 # RMQ_USER = 'user'
 # RMQ_PASSWORD = 'password'
+MQ_EXCHANGE=""
+MQ_ROUTING_KEY="newwwwwwq"
 
 connection_params = pika.ConnectionParameters(
     host=RMQ_HOST,
