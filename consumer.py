@@ -3,7 +3,7 @@ import time
 from typing import TYPE_CHECKING
 from httpx import get
 import pika
-from config import get_connection, configure_logging
+from config import MQ_ROUTING_KEY, get_connection, configure_logging
 
 if TYPE_CHECKING:
     from pika.adapters.blocking_connection import BlockingChannel
@@ -22,13 +22,26 @@ def process_new_message(
     log.debug("method: %s", method) 
     log.debug("properties: %s", properties) 
     log.debug("body: %s", body) 
-    log.info("[ ] Start processing message %r", body)
+    log.warning("[ ] Start processing message %r", body)
+
+    start_time = time.time()
+    number = int(body[-2:])
+    is_odd = number % 2
+    time.sleep(1 + is_odd * 2)
+    end_time = time.time()
+    log.info("[X] Finished processing message %r sending ack", body)    
     ch.basic_ack(delivery_tag=method.delivery_tag)
-    log.warning("[X] Finished processing message %r ", body)    
+    log.warning(
+        "[X] Finished in %.2fs processing message %r",
+        end_time-start_time,
+        body,
+        )    
+    
 
 def consume_messages(channel: "BlockingChannel"):
+    channel.basic_qos(prefetch_count=1)
     channel.basic_consume(
-        queue="hello",
+        queue=MQ_ROUTING_KEY,
         on_message_callback=process_new_message,
         # auto_ack=True,
     )
