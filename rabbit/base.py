@@ -1,11 +1,7 @@
 from pika.adapters.blocking_connection import BlockingChannel
 import pika
-
+from rabbit.exc import RabbitException
 import config
-
-
-class RabbitException(Exception):
-    pass
 
 
 class RabbitBase:
@@ -22,7 +18,7 @@ class RabbitBase:
 
     @property
     def channel(self):
-        if self.channel is None:
+        if self._channel is None:
             raise RabbitException("Please use context manager for Rabbit helper.")
         return self._channel
 

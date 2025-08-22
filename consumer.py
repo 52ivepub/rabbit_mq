@@ -1,9 +1,9 @@
 import logging
 import time
 from typing import TYPE_CHECKING
-from httpx import get
 import pika
 from config import MQ_ROUTING_KEY, get_connection, configure_logging
+from rabbit import RabbitBase
 
 if TYPE_CHECKING:
     from pika.adapters.blocking_connection import BlockingChannel
@@ -29,7 +29,7 @@ def process_new_message(
     is_odd = number % 2
     time.sleep(1 + is_odd * 2)
     end_time = time.time()
-    log.info("[X] Finished processing message %r sending ack", body)    
+    # log.info("[X] Finished processing message %r sending ack", body)    
     ch.basic_ack(delivery_tag=method.delivery_tag)
     log.warning(
         "[X] Finished in %.2fs processing message %r",
@@ -40,6 +40,7 @@ def process_new_message(
 
 def consume_messages(channel: "BlockingChannel"):
     channel.basic_qos(prefetch_count=1)
+    channel.queue_declare(MQ_ROUTING_KEY)
     channel.basic_consume(
         queue=MQ_ROUTING_KEY,
         on_message_callback=process_new_message,
@@ -50,16 +51,9 @@ def consume_messages(channel: "BlockingChannel"):
 
 
 def main():
-    configure_logging(level=logging.INFO)
-    with get_connection() as connection:
-        log.info("Created connection: %s", connection) 
-        with connection.channel() as channel:
-            log.info("Created channel: %s", channel) 
-            consume_messages(channel=channel)
-        
-            # while True:
-            #     pass
-         
+    configure_logging(level=logging.WARNING)
+    with RabbitBase() as robbit:
+        consume_messages(channel=robbit.channel)
 
 
 if __name__ == "__main__":
