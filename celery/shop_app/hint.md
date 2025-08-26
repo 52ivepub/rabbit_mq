@@ -1,1 +1,0 @@
-celery --app shop_app.celery_app worker --pool threads --loglevel=INFO  (start)

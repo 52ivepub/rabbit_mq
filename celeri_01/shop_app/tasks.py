@@ -1,7 +1,7 @@
 import logging
 from time import sleep
-from shop_app.smtp_email_backends import SmtpEmailBackend
-from shop_app.celery_app import app
+from celeri_01.shop_app.smtp_email_backends import SmtpEmailBackend
+from celeri_01.shop_app.celery_app import app
 
 log = logging.getLogger(__name__)
 
